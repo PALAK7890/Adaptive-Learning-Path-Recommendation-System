@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Environment variables
+.env
+
+# Large datasets
+data/raw/
+
+# Model files
+*.pth
+*.pt
+*.pkl
