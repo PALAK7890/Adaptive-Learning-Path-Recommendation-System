@@ -1,3 +1,6 @@
+
+
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,7 +12,6 @@ import joblib
 
 st.set_page_config(
     page_title="AI Career Recommendation System",
-    page_icon="🎯",
     layout="wide"
 )
 
@@ -20,48 +22,134 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-.main {
-    padding-top: 1rem;
+/* Main page */
+
+.stApp{
+    background-color:#F6F8FB;
 }
 
-div[data-testid="stMetric"] {
-    border: 1px solid #444;
-    border-radius: 12px;
-    padding: 12px;
+/* Remove excessive top padding */
+
+.block-container{
+    padding-top:1rem;
+    padding-bottom:2rem;
+    max-width:1400px;
+}
+
+/* Sidebar */
+
+section[data-testid="stSidebar"]{
+    background-color:white;
+    border-right:1px solid #E5E7EB;
+}
+
+/* Metrics */
+
+div[data-testid="stMetric"]{
+    background:white;
+    border:1px solid #E5E7EB;
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Metric labels */
+
+div[data-testid="stMetricLabel"]{
+    font-size:14px;
+    color:#6B7280;
+}
+
+/* Metric values */
+
+div[data-testid="stMetricValue"]{
+    font-size:26px;
+    font-weight:600;
+    color:#111827;
+}
+
+/* Dataframes */
+
+[data-testid="stDataFrame"]{
+    border:1px solid #E5E7EB;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+/* Tabs */
+
+button[data-baseweb="tab"]{
+    font-size:15px;
+    font-weight:500;
+}
+
+/* Buttons */
+
+.stButton > button{
+    width:100%;
+    height:48px;
+    border-radius:10px;
+    border:none;
+    background:#111827;
+    color:white;
+    font-weight:600;
+}
+
+.stButton > button:hover{
+    background:#1F2937;
+}
+
+/* Expanders */
+
+.streamlit-expanderHeader{
+    font-size:16px;
+    font-weight:600;
+}
+
+/* Headers */
+
+h1{
+    color:#111827;
+}
+
+h2{
+    color:#111827;
+}
+
+h3{
+    color:#111827;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
+
 # =========================
 # LOAD MODEL
 # =========================
 
-model = joblib.load("career_xgb.pkl")
-encoder = joblib.load("career_encoder.pkl")
+@st.cache_resource
+def load_models():
+
+    model = joblib.load(
+        "career_xgb.pkl"
+    )
+
+    encoder = joblib.load(
+        "career_encoder.pkl"
+    )
+
+    return model, encoder
+
+model, encoder = load_models()
 
 st.title(
-    "🚀 Adaptive Career Recommendation System"
+    "Adaptive Career Recommendation System"
 )
 
 st.caption(
-    "Discover the best career paths based on your skills, interests and technical strengths."
+    "Identify suitable career paths based on technical skills, interests, and learning progress."
 )
-
-st.markdown("""
-Discover the best career paths based on your
-skills, interests, and technical strengths.
-
-The system provides:
-
-✅ Top 3 Career Recommendations
-
-✅ Skill Gap Analysis
-
-✅ Personalized Learning Roadmap
-
-✅ Estimated Learning Timeline
-""")
 
 st.markdown("---")
 
@@ -272,18 +360,18 @@ def get_skill_gaps(student_row, career):
 def get_readiness(gaps):
 
     if len(gaps) == 0:
-        return "Ready 🚀"
+        return "High"
 
     elif len(gaps) <= 2:
-        return "Almost Ready ⭐"
+        return "Moderate"
 
-    return "Needs Improvement 📚"
+    return "Developing"
 
 # =========================
 # SIDEBAR INPUTS
 # =========================
 
-st.sidebar.title("📝 Student Profile")
+st.sidebar.title("Student Profile")
 
 st.sidebar.markdown(
     "Adjust your skills and interests to receive personalized career recommendations."
@@ -293,7 +381,7 @@ st.sidebar.markdown(
 # Programming Skills
 # -------------------------
 
-st.sidebar.subheader("💻 Programming")
+st.sidebar.subheader("Programming")
 
 python_score = st.sidebar.slider("Python", 0, 100, 50)
 cpp_score = st.sidebar.slider("C++", 0, 100, 50)
@@ -310,7 +398,7 @@ database_score = st.sidebar.slider("Database", 0, 100, 50)
 # Math & AI
 # -------------------------
 
-st.sidebar.subheader("📊 Math & AI")
+st.sidebar.subheader("Math & AI")
 
 statistics_score = st.sidebar.slider("Statistics", 0, 100, 50)
 probability_score = st.sidebar.slider("Probability", 0, 100, 50)
@@ -329,7 +417,7 @@ deep_learning_score = st.sidebar.slider(
 # Systems
 # -------------------------
 
-st.sidebar.subheader("⚙️ Systems")
+st.sidebar.subheader("Systems")
 
 linux_score = st.sidebar.slider("Linux", 0, 100, 50)
 docker_score = st.sidebar.slider("Docker", 0, 100, 50)
@@ -339,7 +427,7 @@ cloud_score = st.sidebar.slider("Cloud", 0, 100, 50)
 # Interests
 # -------------------------
 
-st.sidebar.subheader("❤️ Interests")
+st.sidebar.subheader("Interests")
 
 interest_ai = st.sidebar.checkbox("AI")
 
@@ -375,7 +463,7 @@ interest_cybersecurity = st.sidebar.checkbox(
 # Activity
 # -------------------------
 
-st.sidebar.subheader("📈 Activity")
+st.sidebar.subheader("Activity")
 
 projects_completed = st.sidebar.slider(
     "Projects Completed",
@@ -399,7 +487,7 @@ consistency_score = st.sidebar.slider(
 )
 
 predict_button = st.sidebar.button(
-    "🚀 Generate Recommendations"
+    "Generate Recommendations"
 )
 # =========================
 # PREDICTION
@@ -506,9 +594,52 @@ if predict_button:
         model,
         encoder
     )
+    best_career = recommendations[0]["career"]
+
+    _, best_gaps = get_skill_gaps(
+        student,
+        best_career
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            "Top Career",
+            best_career
+        )
+
+    with col2:
+        st.metric(
+            "Readiness",
+            get_readiness(best_gaps)
+        )
+
+    with col3:
+        st.metric(
+            "Learning Time",
+            career_duration[best_career]
+        )
+
+    with col4:
+        st.metric(
+            "Skill Gaps",
+            len(best_gaps)
+        )
 
     st.header(
-        "🏆 Top 3 Career Recommendations"
+        "Top 3 Career Recommendations"
+    )
+    st.subheader("Career Recommendations")
+
+    st.info(
+        f"""
+        Based on the provided profile, the strongest
+        match is **{best_career}**.
+
+        Estimated preparation time:
+        **{career_duration[best_career]}**
+        """
     )
 
     st.markdown(
@@ -533,7 +664,7 @@ if predict_button:
         readiness = get_readiness(gaps)
 
         with st.expander(
-            f"🏆 #{rank} {career}",
+            f"#{rank} {career}",
             expanded=(rank == 1)
         ):
 
@@ -604,16 +735,26 @@ if predict_button:
             # STRENGTHS
             # =====================
 
-            st.subheader("✅ Your Strengths")
+            st.subheader("Your Strengths")
 
             if strengths:
 
-                for skill, score in strengths:
+                strength_df = pd.DataFrame(
+                    strengths,
+                    columns=["Skill", "Score"]
+                )
 
-                    st.success(
-                        f"{skill.replace('_', ' ').title()} "
-                        f"({score:.0f}/100)"
-                    )
+                strength_df["Skill"] = (
+                    strength_df["Skill"]
+                    .str.replace("_", " ")
+                    .str.title()
+                )
+
+                st.dataframe(
+                    strength_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
 
             else:
 
@@ -625,49 +766,45 @@ if predict_button:
             # SKILL GAPS
             # =====================
 
-            st.subheader("📈 Skill Gaps")
+            st.subheader("Skill Gaps")
 
             if len(gaps) == 0:
 
-                st.success(
-                    """
-                    No major skill gaps detected.
 
-                    Continue improving your existing
-                    strengths and gain practical
-                    experience through projects.
-                    """
-                )
+                st.success(
+                        "No major skill gaps detected."
+                    )
 
             else:
 
-                for gap in gaps:
+                gap_df = pd.DataFrame(gaps)
 
-                    completion = min(
-                        int(
-                            (gap["current"] /
-                             gap["target"]) * 100
-                        ),
-                        100
-                    )
+                gap_df = gap_df.rename(
+                    columns={
+                        "skill": "Skill",
+                        "current": "Current",
+                        "target": "Target",
+                        "gap": "Gap"
+                    }
+                )
 
-                    st.write(
-                        f"**{gap['skill'].replace('_', ' ').title()}**"
-                    )
+                gap_df["Skill"] = (
+                    gap_df["Skill"]
+                    .str.replace("_", " ")
+                    .str.title()
+                )
 
-                    st.progress(completion)
-
-                    st.caption(
-                        f"Current: {gap['current']:.0f} | "
-                        f"Target: {gap['target']} | "
-                        f"Need +{gap['gap']}"
-                    )
+                st.dataframe(
+                    gap_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
 
             # =====================
             # ROADMAP
             # =====================
 
-            st.subheader("🛣️ Learning Roadmap")
+            st.subheader("Learning Roadmap")
 
             roadmap = career_roadmaps[career]
 
@@ -676,8 +813,21 @@ if predict_button:
                 start=1
             ):
 
-                st.write(
-                    f"**Step {i}** — {step}"
+                roadmap_df = pd.DataFrame(
+                    roadmap,
+                    columns=["Activity", "Duration"]
+                )
+
+                roadmap_df.insert(
+                    0,
+                    "Step",
+                    range(1, len(roadmap_df) + 1)
+                )
+
+                st.dataframe(
+                    roadmap_df,
+                    use_container_width=True,
+                    hide_index=True
                 )
 
                 st.caption(
@@ -688,7 +838,7 @@ if predict_button:
             # FINAL ADVICE
             # =====================
 
-            st.subheader("🎯 Recommendation")
+            st.subheader("Recommendation")
 
             if len(gaps) == 0:
 
@@ -729,4 +879,3 @@ if predict_button:
                     """
                 )
 
-                
